@@ -20,7 +20,7 @@ fn main() {
     // this port until we bind it again. This should work in most cases (unless we run on a
     // system with very few free ports), because at least Linux will not reuse port numbers
     // unless necessary, see https://unix.stackexchange.com/a/132524.
-    let server_address = UdpSocket::bind("localhost:0")
+    let server_address = UdpSocket::bind("localhost:5683")
         .expect("Failed to bind server socket")
         .local_addr()
         .expect("Failed to get server socket address");
@@ -59,6 +59,7 @@ fn main() {
                 response.set_code(CoapResponseCode::Content);
                 // Send the response message.
                 session.send(response).expect("Unable to send response");
+                println!("DEBUG: Replied to a request on hello_world");
             },
         )),
     );
