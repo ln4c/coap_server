@@ -32,7 +32,6 @@ fn main() {
         .expect("Unable to add/bind to endpoint");
 
     context.add_oscore_conf(1, "oscore_conf");
-    context.add_new_oscore_recipient("client");
 
     // Create a new resource that is available at the URI path `hello_world`
     // The second argument can be used to provide any kind of user-specific data, which will
