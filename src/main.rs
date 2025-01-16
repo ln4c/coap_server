@@ -7,7 +7,7 @@ use libcoap_rs::{
     message::{CoapMessageCommon, CoapRequest, CoapResponse},
     protocol::{CoapRequestCode, CoapResponseCode},
     session::{CoapServerSession, CoapSessionCommon},
-    CoapContext, CoapRequestHandler, CoapResource,
+    CoapContext, CoapRequestHandler, CoapResource, OscoreConf,
 };
 
 fn main() {
@@ -31,7 +31,9 @@ fn main() {
         .add_endpoint_udp(server_address)
         .expect("Unable to add/bind to endpoint");
 
-    context.add_oscore_conf(1, "oscore_conf");
+    let config = OscoreConf::new(1, "oscore_conf");
+
+    context.add_oscore_conf(config);
 
     // Create a new resource that is available at the URI path `hello_world`
     // The second argument can be used to provide any kind of user-specific data, which will
