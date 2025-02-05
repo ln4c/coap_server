@@ -1,4 +1,5 @@
 use std::{
+    fs,
     net::{SocketAddr, UdpSocket},
     time::Duration,
 };
@@ -7,7 +8,7 @@ use libcoap_rs::{
     message::{CoapMessageCommon, CoapRequest, CoapResponse},
     protocol::{CoapRequestCode, CoapResponseCode},
     session::{CoapServerSession, CoapSessionCommon},
-    CoapContext, CoapRequestHandler, CoapResource, OscoreConf,
+    CoapContext, CoapRequestHandler, CoapResource,
 };
 
 fn main() {
@@ -31,9 +32,14 @@ fn main() {
         .add_endpoint_udp(server_address)
         .expect("Unable to add/bind to endpoint");
 
-    let config = OscoreConf::new(1, "oscore_conf");
+    // read bytes from oscore_conf
+    let bytes = fs::read("oscore_conf").expect("could not read oscore_conf file");
 
-    context.add_oscore_conf(config);
+    // add oscore_conf to context
+    context.add_oscore_conf(1, &bytes);
+
+    // add new recipient to context (TODO: only allowed after add_oscore_conf is called)
+    context.add_new_oscore_recipient("client1");
 
     // Create a new resource that is available at the URI path `hello_world`
     // The second argument can be used to provide any kind of user-specific data, which will
