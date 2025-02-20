@@ -33,13 +33,17 @@ fn main() {
         .expect("Unable to add/bind to endpoint");
 
     // read bytes from oscore_conf
-    let bytes = fs::read("oscore_conf").expect("could not read oscore_conf file");
+    let bytes = fs::read("oscore_conf").expect("Could not read oscore_conf file");
 
     // add oscore_conf to context
-    context.add_oscore_conf(1, &bytes);
+    context
+        .add_oscore_conf(1, &bytes)
+        .expect("Adding the oscore_conf failed");
 
-    // add new recipient to context (TODO: only allowed after add_oscore_conf is called)
-    context.add_new_oscore_recipient("client1");
+    // add new recipient to context
+    context
+        .add_new_oscore_recipient("client")
+        .expect("Adding the 'client' failed");
 
     // Create a new resource that is available at the URI path `hello_world`
     // The second argument can be used to provide any kind of user-specific data, which will
@@ -67,6 +71,7 @@ fn main() {
                 response.set_code(CoapResponseCode::Content);
                 // Send the response message.
                 session.send(response).expect("Unable to send response");
+                #[cfg(debug_assertions)]
                 println!("DEBUG: Replied to a request on hello_world");
             },
         )),
