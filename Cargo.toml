@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-libcoap-rs = { version = "0.2.2", path = "../libcoap-rs/libcoap", features = ["oscore"] }
+libcoap-rs = { version = "0.2.2", path = "../libcoap-rs/libcoap", features = ["oscore", "std"] }
 libcoap-sys = { version = "0.2.2", path = "../libcoap-rs/libcoap-sys" }
 

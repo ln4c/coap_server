@@ -1,5 +1,6 @@
 use std::{
     fs,
+    io::BufRead,
     net::{SocketAddr, UdpSocket},
     time::Duration,
 };
@@ -8,7 +9,7 @@ use libcoap_rs::{
     message::{CoapMessageCommon, CoapRequest, CoapResponse},
     protocol::{CoapRequestCode, CoapResponseCode},
     session::{CoapServerSession, CoapSessionCommon},
-    CoapContext, CoapRequestHandler, CoapResource,
+    CoapContext, CoapRequestHandler, CoapResource, OscoreConf,
 };
 
 fn main() {
@@ -35,14 +36,20 @@ fn main() {
     // read bytes from oscore_conf
     let bytes = fs::read("oscore_conf").expect("Could not read oscore_conf file");
 
+    // edhoc example
+    let bytes = edhoc(bytes, "1234", "4321", "edhoc");
+
+    // create the oscore_conf using std
+    let oscore_conf = OscoreConf::new_std(1, &bytes).expect("Could not create oscore_conf");
+
     // add oscore_conf to context
     context
-        .add_oscore_conf(1, &bytes)
+        .oscore_server(oscore_conf)
         .expect("Adding the oscore_conf failed");
 
     // add new recipient to context
     context
-        .add_new_oscore_recipient("client")
+        .new_oscore_recipient("client")
         .expect("Adding the 'client' failed");
 
     // Create a new resource that is available at the URI path `hello_world`
@@ -88,4 +95,33 @@ fn main() {
     }
     // Properly shut down, completing outstanding IO requests and properly closing sessions.
     context.shutdown(Some(Duration::from_secs(0))).unwrap();
+}
+
+fn edhoc(bytes: Vec<u8>, secret: &str, salt: &str, recipient_id: &str) -> Vec<u8> {
+    let mut lines: Vec<String> = core::str::from_utf8(&bytes)
+        .unwrap()
+        .lines()
+        .map(|line| line.to_string())
+        .collect();
+    let mut recipient_found = false;
+    for line in lines.iter_mut() {
+        if line.starts_with("master_secret") {
+            *line = format!("master_secret,hex,\"{}\"", secret);
+        } else if line.starts_with("master_salt") {
+            *line = format!("master_salt,hex,\"{}\"", salt);
+        } else if line.starts_with("recipient_id") {
+            *line = format!("recipient_id,ascii,\"{}\"", recipient_id);
+            recipient_found = true;
+        }
+    }
+    if !recipient_found {
+        for i in 0..lines.len() {
+            if lines[i].starts_with("sender_id") {
+                lines.insert(i + 1, format!("recipient_id,ascii,\"{}\"", recipient_id));
+            }
+        }
+    }
+    let lines = lines.join("\n");
+    println!("{}", lines);
+    lines.into_bytes()
 }
