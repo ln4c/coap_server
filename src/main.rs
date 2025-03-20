@@ -131,7 +131,7 @@ fn main() {
     // INFO: EDHOC EXAMPLE
     // The edhoc-function currently offers an easy way to update the secret, salt and recipient_id
     // of a given config file to provide own values negotiated by EDHOC.
-    let bytes = edhoc(bytes, "1234", "4321", "server");
+    let bytes = edhoc(bytes, "1234", "4321", "backend");
 
     // INFO: CHOOSE AN INITIAL SEQUENCE NUMBER
     // The read_initial_seq_num-function is used to try to read the last saved sequence number from
